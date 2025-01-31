@@ -11,13 +11,12 @@ using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
-string KeyVaultUri = Environment.GetEnvironmentVariable("KeyVaultUri")!;
+string KeyVaultUri = Environment.GetEnvironmentVariable("KeyVaultUri") ?? builder.Configuration["AzureKeyVaultUri:Uri"];
 
 var client = new SecretClient(new Uri(KeyVaultUri), new DefaultAzureCredential());
 var secret = client.GetSecret("connection-string");
 
 string connectionString = secret.Value.Value;
-
 
 builder.Services.AddAuthentication(options =>
 {
