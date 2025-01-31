@@ -6,8 +6,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Security.Claims;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 
 var builder = WebApplication.CreateBuilder(args);
+
+string KeyVaultUri = Environment.GetEnvironmentVariable("KeyVaultUri")!;
+
+var client = new SecretClient(new Uri(KeyVaultUri), new DefaultAzureCredential());
+var secret = client.GetSecret("connection-string");
+
+string connectionString = secret.Value.Value;
 
 builder.Services.AddAuthentication(options =>
 {
@@ -87,7 +96,7 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
