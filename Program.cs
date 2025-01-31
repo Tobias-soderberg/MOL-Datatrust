@@ -14,9 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 string KeyVaultUri = Environment.GetEnvironmentVariable("KeyVaultUri") ?? builder.Configuration["AzureKeyVaultUri:Uri"];
 
 var client = new SecretClient(new Uri(KeyVaultUri), new DefaultAzureCredential());
-var secret = client.GetSecret("connection-string");
-
-string connectionString = secret.Value.Value;
+var connectionString = client.GetSecret("connection-string").Value.Value;
 
 builder.Services.AddAuthentication(options =>
 {
@@ -74,8 +72,8 @@ builder.Services.AddAuthentication(options =>
        }
     }
     */
-    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    options.ClientId = client.GetSecret("GoogleClientId").Value.Value;
+    options.ClientSecret = client.GetSecret("GoogleClientSecret").Value.Value;
     options.ResponseType = OpenIdConnectResponseType.Code;
     options.CallbackPath = "/signin-oidc-google";
     options.Scope.Add("openid");
